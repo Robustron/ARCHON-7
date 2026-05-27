@@ -39,16 +39,13 @@ app.post(['/', '/api/generate'], async (req, res) => {
             // Check Redis for usage count
             const usageCount = await redis.get(redisKey);
             
-            // Allow 1 free trial. If usage is >= 1, block them.
-            if (usageCount !== null && parseInt(usageCount.toString()) >= 1) {
+            // Allow 5 free trials for testing. If usage is >= 5, block them.
+            if (usageCount !== null && parseInt(usageCount.toString()) >= 5) {
                 return res.status(429).json({ 
                     error: 'Limit Reached',
-                    message: 'You have reached the limit of 1 free masterclass generation.' 
+                    message: 'You have reached the limit of 5 free masterclass generations.' 
                 });
             }
-
-            // Increment usage count
-            await redis.incr(redisKey);
         }
 
         // Generate response with Anthropic
@@ -60,6 +57,12 @@ app.post(['/', '/api/generate'], async (req, res) => {
         });
 
         const rawText = msg.content[0].text;
+        
+        // Increment usage count ONLY after a successful generation
+        if (userIp !== 'unknown-ip' && process.env.UPSTASH_REDIS_REST_URL) {
+            await redis.incr(redisKey);
+        }
+
         res.json({ text: rawText });
         
     } catch (error) {
