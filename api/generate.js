@@ -23,7 +23,7 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
 });
 
-app.post('/api/generate', async (req, res) => {
+app.post(['/', '/api/generate'], async (req, res) => {
     try {
         const { systemPrompt, chatHistory, maxModules } = req.body;
 
