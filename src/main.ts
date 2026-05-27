@@ -35,9 +35,7 @@ CRITICAL FORMATTING RULES:
 OPERATIONAL FLOW:
 Wait for the user's domain and subject to commence. Deliver Module 1.`;
 
-// Backend API URL
-const BACKEND_URL = "http://localhost:3456/api/generate";
-
+// API & User State
 let chatHistory: any[] = [];
 let aiInitialized = false;
 let userDomain: string | null = null;
