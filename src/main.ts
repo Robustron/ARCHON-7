@@ -48,7 +48,7 @@ let isWaitingForAI = false;
 let isLoggedIn = false;
 
 // Listen for Supabase Auth state changes
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange((_event, session) => {
     isLoggedIn = !!session;
 });
 
