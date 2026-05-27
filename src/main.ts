@@ -94,6 +94,7 @@ try {
         const prevModuleButton = document.getElementById('prev-module-button') as HTMLButtonElement;
         const nextModuleButton = document.getElementById('next-module-button') as HTMLButtonElement;
         const moduleCounterDisplay = document.getElementById('module-counter-display')!;
+        const goBackButton = document.getElementById('go-back-btn') as HTMLButtonElement;
         
         const loginModal = document.getElementById('login-modal')!;
         const submitLoginBtn = document.getElementById('submit-login-btn') as HTMLButtonElement;
@@ -338,6 +339,24 @@ try {
                 displayModule(nextIndex);
             } else {
                 fetchAndDisplayModule(`Proceed to Module ${nextIndex + 1}.`);
+            }
+        });
+
+        goBackButton.addEventListener('click', () => {
+            if (confirm("Are you sure you want to go back? This will clear your current masterclass progress.")) {
+                localStorage.removeItem('archon_state');
+                userDomain = null;
+                userSubject = null;
+                userLevel = null;
+                modules = [];
+                chatHistory = [];
+                currentModuleIndex = -1;
+                
+                masterclassArea.classList.add('hidden');
+                slidesContainer.classList.remove('hidden');
+                
+                // Scroll to setup section
+                document.getElementById('setup')?.scrollIntoView({ behavior: 'smooth' });
             }
         });
 
