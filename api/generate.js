@@ -1,16 +1,5 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 import { Redis } from '@upstash/redis';
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3456;
-
-app.use(cors());
-app.use(express.json());
 
 // Initialize Anthropic (Requires ANTHROPIC_API_KEY in .env)
 const anthropic = new Anthropic({
@@ -23,7 +12,12 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
 });
 
-app.post(['/', '/api/generate'], async (req, res) => {
+export default async function handler(req, res) {
+    // Only allow POST requests
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     try {
         const { systemPrompt, chatHistory, maxModules } = req.body;
 
@@ -63,30 +57,10 @@ app.post(['/', '/api/generate'], async (req, res) => {
             await redis.incr(redisKey);
         }
 
-        res.json({ text: rawText });
+        return res.status(200).json({ text: rawText });
         
     } catch (error) {
         console.error('Error generating response:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-});
-
-// Reset rate limit for testing
-app.post('/api/reset', async (req, res) => {
-    try {
-        const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown-ip';
-        const redisKey = `archon7_usage_${userIp}`;
-        await redis.del(redisKey);
-        res.json({ message: 'Rate limit reset successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Reset failed' });
-    }
-});
-
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`ARCHON-7 Secure Backend listening on http://localhost:${PORT}`);
-    });
 }
-
-export default app;
