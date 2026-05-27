@@ -1,6 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { Redis } from '@upstash/redis';
 
+// Load .env for local development (Vercel injects env vars automatically)
+if (!process.env.VERCEL) {
+    const dotenv = await import('dotenv');
+    dotenv.config();
+}
+
 export default async function handler(req, res) {
     // Only allow POST requests
     if (req.method !== 'POST') {
@@ -14,11 +20,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Missing systemPrompt or chatHistory' });
         }
 
-        // Initialize API clients inside the handler to ensure process.env is populated by Vercel
+        // Initialize API clients inside the handler to ensure process.env is populated
         const apiKey = process.env.ANTHROPIC_API_KEY;
         if (!apiKey) {
             console.error('ANTHROPIC_API_KEY is missing in environment variables.');
-            return res.status(500).json({ error: 'Server configuration error' });
+            return res.status(500).json({ error: 'Server configuration error: API key missing' });
         }
 
         const anthropic = new Anthropic({ apiKey });
@@ -37,10 +43,7 @@ export default async function handler(req, res) {
         const redisKey = `archon7_usage_${userIp}`;
 
         if (userIp !== 'unknown-ip' && redis) {
-            // Check Redis for usage count
             const usageCount = await redis.get(redisKey);
-            
-            // Allow 5 free trials for testing. If usage is >= 5, block them.
             if (usageCount !== null && parseInt(usageCount.toString()) >= 5) {
                 return res.status(429).json({ 
                     error: 'Limit Reached',
@@ -51,7 +54,7 @@ export default async function handler(req, res) {
 
         // Generate response with Anthropic
         const msg = await anthropic.messages.create({
-            model: "claude-3-haiku-20240307",
+            model: "claude-haiku-4-5",
             system: systemPrompt,
             messages: chatHistory,
             max_tokens: 4096,
@@ -68,29 +71,22 @@ export default async function handler(req, res) {
         
     } catch (error) {
         console.error('Error generating response:', error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message });
     }
 }
 
 // ==========================================
 // LOCAL DEVELOPMENT SERVER (Express Wrapper)
 // ==========================================
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-
-// Check if this file is being run directly (e.g. `node api/generate.js`)
-// For ES modules, this is a common way to check
 if (process.argv[1] && process.argv[1].endsWith('generate.js')) {
-    dotenv.config(); // Load .env for local testing
+    const express = (await import('express')).default;
+    const cors = (await import('cors')).default;
 
     const app = express();
     app.use(cors());
     app.use(express.json());
 
-    // Route to the Vercel handler
     app.post(['/', '/api/generate'], async (req, res) => {
-        // Express req/res are compatible enough with Vercel for this simple use case
         await handler(req, res);
     });
 
@@ -99,6 +95,3 @@ if (process.argv[1] && process.argv[1].endsWith('generate.js')) {
         console.log(`ARCHON-7 Local Backend listening on http://localhost:${PORT}`);
     });
 }
-
-
-
