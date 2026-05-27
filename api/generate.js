@@ -72,3 +72,33 @@ export default async function handler(req, res) {
     }
 }
 
+// ==========================================
+// LOCAL DEVELOPMENT SERVER (Express Wrapper)
+// ==========================================
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+// Check if this file is being run directly (e.g. `node api/generate.js`)
+// For ES modules, this is a common way to check
+if (process.argv[1] && process.argv[1].endsWith('generate.js')) {
+    dotenv.config(); // Load .env for local testing
+
+    const app = express();
+    app.use(cors());
+    app.use(express.json());
+
+    // Route to the Vercel handler
+    app.post(['/', '/api/generate'], async (req, res) => {
+        // Express req/res are compatible enough with Vercel for this simple use case
+        await handler(req, res);
+    });
+
+    const PORT = process.env.PORT || 3456;
+    app.listen(PORT, () => {
+        console.log(`ARCHON-7 Local Backend listening on http://localhost:${PORT}`);
+    });
+}
+
+
+
