@@ -412,6 +412,72 @@ try {
             }
         }
 
+        // --- Paywall Close Button ---
+        const closePaywallBtn = document.getElementById('close-paywall-btn');
+        if (closePaywallBtn) {
+            closePaywallBtn.addEventListener('click', () => {
+                document.getElementById('paywall-modal')?.classList.add('hidden');
+            });
+        }
+
+        // --- Razorpay Checkout Integration ---
+        declare const Razorpay: any;
+        const RAZORPAY_KEY_ID = (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || '';
+
+        const pricingBuyBtns = document.querySelectorAll('.pricing-buy-btn') as NodeListOf<HTMLButtonElement>;
+        pricingBuyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const plan = btn.getAttribute('data-plan') || 'starter';
+                const amountInPaise = parseInt(btn.getAttribute('data-amount') || '30000');
+                const planName = plan === 'pro' ? 'ARCHON-7 Pro (Monthly)' : 'ARCHON-7 Starter (10 Books)';
+
+                if (!RAZORPAY_KEY_ID) {
+                    alert('Payment is not configured yet. Please contact support.');
+                    return;
+                }
+
+                const options = {
+                    key: RAZORPAY_KEY_ID,
+                    amount: amountInPaise,
+                    currency: 'INR',
+                    name: 'ARCHON-7',
+                    description: planName,
+                    image: '/logo2.png',
+                    handler: function(response: any) {
+                        // Payment successful
+                        alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
+                        document.getElementById('paywall-modal')?.classList.add('hidden');
+                        // TODO: Verify payment on backend and unlock access
+                    },
+                    prefill: {
+                        email: '',
+                    },
+                    theme: {
+                        color: '#1a1a2e',
+                        backdrop_color: 'rgba(0,0,0,0.7)',
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            console.log('Razorpay checkout closed by user.');
+                        }
+                    },
+                    notes: {
+                        plan: plan,
+                    }
+                };
+
+                try {
+                    const rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function(response: any) {
+                        alert('Payment failed: ' + response.error.description);
+                    });
+                    rzp.open();
+                } catch (e: any) {
+                    alert('Could not open payment gateway: ' + e.message);
+                }
+            });
+        });
+
         if (!loadState()) {
             initializeAI();
         }

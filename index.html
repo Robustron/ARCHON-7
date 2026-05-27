@@ -178,13 +178,48 @@
         </div>
     </div>
 
-    <!-- Upgrade to Pro Paywall Modal -->
+    <!-- Upgrade to Pro Pricing Modal -->
     <div id="paywall-modal" class="modal-overlay hidden">
-      <div class="modal-content glass-card">
-        <h2>Upgrade to Pro</h2>
-        <p>You have reached your limit of 1 free Masterclass generation based on your IP address.</p>
-        <p>Unlock unlimited access to the Ultimate Learning Synthesizer to master any complex domain.</p>
-        <button class="btn-solid modal-btn" onclick="document.getElementById('paywall-modal').classList.add('hidden')">View Pricing</button>
+      <div class="pricing-modal-content glass-card">
+        <button id="close-paywall-btn" class="pricing-close-btn">&times;</button>
+        <h2>Upgrade Your Learning</h2>
+        <p class="pricing-subtitle">You've used your free generations. Choose a plan to continue mastering any domain.</p>
+        
+        <div class="pricing-cards-row">
+          <!-- Plan 1: Starter -->
+          <div class="pricing-card" id="plan-starter">
+            <div class="pricing-card-badge">STARTER</div>
+            <div class="pricing-card-price">
+              <span class="pricing-currency">₹</span><span class="pricing-amount">300</span>
+            </div>
+            <p class="pricing-card-desc">One-time purchase</p>
+            <ul class="pricing-features">
+              <li><span class="pricing-check">✓</span> 10 Masterclass Books</li>
+              <li><span class="pricing-check">✓</span> All Depth Levels</li>
+              <li><span class="pricing-check">✓</span> Mermaid Diagrams</li>
+              <li><span class="pricing-check">✓</span> Adaptive Quizzes</li>
+            </ul>
+            <button class="btn-solid pricing-buy-btn" data-plan="starter" data-amount="30000">Get Starter</button>
+          </div>
+
+          <!-- Plan 2: Pro -->
+          <div class="pricing-card pricing-card-featured" id="plan-pro">
+            <div class="pricing-card-badge pricing-badge-pro">MOST POPULAR</div>
+            <div class="pricing-card-price">
+              <span class="pricing-currency">₹</span><span class="pricing-amount">1,000</span>
+            </div>
+            <p class="pricing-card-desc">per month</p>
+            <ul class="pricing-features">
+              <li><span class="pricing-check">✓</span> Unlimited Generations</li>
+              <li><span class="pricing-check">✓</span> All Depth Levels</li>
+              <li><span class="pricing-check">✓</span> Mermaid Diagrams</li>
+              <li><span class="pricing-check">✓</span> Adaptive Quizzes</li>
+              <li><span class="pricing-check">✓</span> Priority Generation Speed</li>
+              <li><span class="pricing-check">✓</span> Capstone Projects</li>
+            </ul>
+            <button class="btn-solid pricing-buy-btn pricing-buy-featured" data-plan="pro" data-amount="100000">Go Pro</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -209,5 +244,6 @@
     <script type="module" src="/src/main.ts"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({ startOnLoad: false });</script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </body>
 </html>
