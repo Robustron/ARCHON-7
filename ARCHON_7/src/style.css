@@ -1,403 +1,637 @@
+/* Base & Reset */
+:root {
+  --color-black: #000000;
+  --color-dark: #111111;
+  --color-light: #f5f5f5;
+  --color-white: #ffffff;
+  --color-tan: #c2b29d; 
+  --glass-bg: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  font-family: sans-serif;
-  margin: 0;
+  font-family: var(--font-sans);
+  background: #fdf4ff; /* fallback */
+  color: var(--color-dark);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none !important;
+}
+a, button, input {
+  cursor: none !important;
+}
+
+/* Ambient Background Glows */
+.ambient-glow {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -1;
+  opacity: 0.6;
+  pointer-events: none;
+}
+.glow-1 {
+  width: 600px; height: 600px;
+  background: rgba(96, 165, 250, 0.4); /* Light bluish shade */
+  top: 10%; left: -150px;
+}
+.glow-2 {
+  width: 500px; height: 500px;
+  background: rgba(236, 72, 153, 0.4); /* Light pinkish shade */
+  bottom: 10%; right: -100px;
+}
+
+/* Custom Cursor */
+.cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background-color: #d8b4fe; /* Light Purple */
+  box-shadow: 0 0 10px #d8b4fe;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  transition: width 0.2s, height 0.2s, background-color 0.4s;
+}
+.cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 32px; height: 32px;
+  border: 2px solid #d8b4fe; /* Light Purple */
+  box-shadow: 0 0 10px rgba(216, 180, 254, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 99998;
+  transition: width 0.2s, height 0.2s, border-color 0.4s, background-color 0.4s, left 0.1s ease-out, top 0.1s ease-out;
+}
+.cursor-ring.clicking {
+  width: 50px;
+  height: 50px;
+  background-color: rgba(216, 180, 254, 0.4);
+  box-shadow: 0 0 20px rgba(216, 180, 254, 0.6);
+  border-color: transparent;
+}
+.cursor-ring.hovering {
+  width: 48px;
+  height: 48px;
+  background-color: rgba(216, 180, 254, 0.2);
+  border-color: transparent;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  padding: 2rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  color: var(--color-white);
+  transition: color 0.4s ease;
+}
+.theme-light .navbar {
+  color: var(--color-dark) !important;
+}
+.navbar.light-nav, .navbar.bottom-nav {
+  position: relative;
+  mix-blend-mode: normal;
+  background: var(--color-light);
+  color: var(--color-black);
+  border-bottom: 1px solid #ccc;
+}
+.navbar.bottom-nav {
+  border-bottom: none;
+  border-top: 1px solid #ccc;
+}
+.nav-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+.nav-links a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Layout & Slides */
+#slides-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+#slides-container::-webkit-scrollbar { display: none; }
+.slide {
+  height: 100vh;
+  width: 100vw;
+  scroll-snap-align: start;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateZ(0); /* Fixes scroll paint smearing bug */
+  will-change: transform;
+}
+.content-wrapper {
+  max-width: 1200px;
+  width: 100%;
+  padding: 2rem;
+}
+
+/* Hero Section - Milky Way Motion */
+.hero-slide {
+  position: relative;
+  overflow: hidden;
+  background-color: #030014; /* Deep space black/purple */
+}
+.hero-bg {
+  position: absolute;
+  top: -25%; left: -25%;
+  width: 150%; height: 150%;
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Andromeda_Galaxy_%28with_h-alpha%29.jpg/1920px-Andromeda_Galaxy_%28with_h-alpha%29.jpg');
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  animation: milkyWayMotion 12s ease-in-out infinite alternate;
+}
+@keyframes milkyWayMotion {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.3) rotate(8deg); }
+}
+.hero-video {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5); /* Slightly darker to ensure text contrast over video */
+  z-index: 1;
+}
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 0 2rem;
+}
+.hero-content h1 {
+  font-size: 4.5rem;
+  font-weight: 600;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  margin-bottom: 2rem;
+  color: var(--color-white);
+}
+.text-gradient {
+  background: linear-gradient(to right, #38bdf8, #c084fc); /* blue to purple */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-content .subtitle {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--color-light);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Black Slide (Now Glassy Theme) */
+.black-slide {
+  background: #000000; /* Complete black */
+  color: var(--color-white);
+}
+.glass-info-card {
+  background: rgba(255, 255, 255, 0.05); /* Black/Dark Glassmorphism */
+  backdrop-filter: blur(16px);
+  padding: 2.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+.black-slide h2 {
+  font-size: 3rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+.black-slide p {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+/* Light Slide (Now Glassy Theme) - The Middle Slide */
+.light-slide {
+  background: rgba(255, 255, 255, 0.3); /* The shaded look from before */
+  backdrop-filter: blur(8px);
+  color: var(--color-dark);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+.feature-box {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  padding: 3rem 2rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  transition: transform 0.2s, color 0.3s;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  cursor: pointer;
+}
+.feature-box::before {
+  content: '';
+  position: absolute;
+  bottom: -100%; left: 0;
+  width: 100%; height: 100%;
+  background: #60a5fa; /* default blue */
+  border-radius: 50%;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+.feature-box:nth-child(1)::before { background: #a5cbf7; } /* Light Blue (Matte) */
+.feature-box:nth-child(2)::before { background: #fce68f; } /* Light Yellow (Matte) */
+.feature-box:nth-child(3)::before { background: #f8b4d9; } /* Light Pink (Matte) */
+
+.feature-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(96, 165, 250, 0.2); /* default blue shadow */
+}
+.feature-box:nth-child(1):hover { box-shadow: 0 10px 30px rgba(165, 203, 247, 0.3); }
+.feature-box:nth-child(2):hover { box-shadow: 0 10px 30px rgba(252, 230, 143, 0.3); }
+.feature-box:nth-child(3):hover { box-shadow: 0 10px 30px rgba(248, 180, 217, 0.3); }
+
+.feature-box:hover::before {
+  height: 200%;
+  bottom: 0;
+  border-radius: 0;
+}
+.feature-box h3, .feature-box p, .feature-box .feat-icon {
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+.feature-box:hover h3, .feature-box:hover p, .feature-box:hover .feat-icon {
+  color: var(--color-dark); /* Ensure text stays dark against the light matte backgrounds */
+}
+.feat-icon {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+  transition: color 0.3s;
+}
+.feature-box h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.feature-box p {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* Tan Setup Slide (Now Glassy Theme) - The Last Slide */
+.tan-slide {
+  background: rgba(255, 218, 185, 0.6); /* Peach type low shade */
+  backdrop-filter: blur(8px);
+  color: var(--color-dark);
+}
+.setup-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.col h2 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem; }
+
+/* === Slide 5: Setup Roadmap === */
+.setup-header h2 {
+  font-size: 4rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -2px;
+  margin-bottom: 1rem;
+}
+.setup-header p {
+  font-size: 1.25rem;
+  color: rgba(0,0,0,0.7);
+}
+.setup-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  padding: 3rem;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+}
+.form-group {
+  margin-bottom: 2rem;
+}
+.form-group label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 1rem 0;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  background: transparent;
+  outline: none;
+  border-radius: 0;
+  color: var(--color-black);
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-bottom-color: var(--color-black);
+}
+
+/* Buttons */
+.btn-solid {
+  display: inline-block;
+  background: var(--color-black);
+  color: var(--color-white);
+  padding: 1.25rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: background 0.2s;
+}
+.btn-solid:hover {
+  background: #333;
+}
+.btn-outline {
+  display: inline-block;
+  background: transparent;
+  color: var(--color-black);
+  border: 1px solid var(--color-black);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline:hover {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* Masterclass UI Area */
+.hidden { display: none !important; }
+#masterclass-area {
+  height: 100vh; width: 100vw;
+  background: #f5f0e8;
+  color: #2c2c2c;
+  display: flex; flex-direction: column;
+}
+
+/* Notebook Top Bar */
+#masterclass-area .navbar.light-nav {
+  background: #e8e0d0;
+  border-bottom: 2px solid #c9b99a;
+  padding: 0.8rem 2rem;
+}
+#masterclass-area .navbar.light-nav h2 {
+  font-family: 'Caveat', cursive;
+  font-size: 1.6rem;
+  color: #4a3f35;
+  font-weight: 600;
+}
+
+/* Notebook Page Container */
+#module-container { 
+  flex-grow: 1; 
+  padding: 0;
+  overflow-y: auto; 
+  max-width: 800px;
+  margin: 2rem auto;
+  width: 100%;
+  background: #fffdf7;
+  border-radius: 4px;
+  box-shadow: 
+    2px 2px 8px rgba(0,0,0,0.08),
+    -1px 0 0 #d4c9b8,
+    0 0 0 1px #e0d6c6;
+  position: relative;
+}
+
+/* Red margin line */
+#module-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 72px;
+  width: 2px;
+  height: 100%;
+  background: rgba(220, 80, 80, 0.35);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Notebook lined background */
+.module-content {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+  line-height: 1.8rem;
+  color: #2c2c2c;
+  padding: 1.8rem 2.5rem 1.8rem 90px;
+  background-image: 
+    repeating-linear-gradient(
+      transparent,
+      transparent 1.7rem,
+      rgba(173, 196, 219, 0.4) 1.7rem,
+      rgba(173, 196, 219, 0.4) 1.8rem
+    );
+  background-size: 100% 1.8rem;
+  background-position: 0 0;
+  min-height: 100%;
+}
+
+.module-content p, .module-content ul, .module-content ol {
+  font-family: 'Caveat', cursive;
+  font-size: 1.5rem;
+  line-height: 1.8rem;
+  margin-top: 0;
+  margin-bottom: 1.8rem;
+  padding-bottom: 0;
+  color: #333;
+}
+
+.module-content h1, .module-content h2, .module-content h3 {
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 1.8rem;
+  margin-bottom: 0;
+  line-height: 1.8rem;
+}
+.module-content h1 { font-size: 2.2rem; }
+.module-content h2 { font-size: 2rem; }
+.module-content h3 { font-size: 1.8rem; }
+
+.module-content strong, .module-content b {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.module-content em, .module-content i {
+  font-style: italic;
+  color: #444;
+}
+
+.module-content hr {
+  border: none;
+  border-top: 1px dashed #c9b99a;
+  margin: 0.9rem 0 0.9rem 0;
+  height: 0;
+}
+
+/* Notebook Table Styling */
+.module-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.8rem;
+}
+.module-content th, .module-content td {
+  border: 1px solid #c9b99a;
+  padding: 0.4rem 0.8rem;
+  line-height: 1.8rem;
+}
+.module-content th {
+  background: rgba(201, 185, 154, 0.2);
+  font-weight: 700;
+}
+
+/* Code and Pre Blocks (prevent overflow) */
+.module-content pre {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px dashed #c9b99a;
+  padding: 1rem;
+  margin-bottom: 1.8rem;
+  border-radius: 4px;
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  line-height: 1.6rem;
+}
+.module-content code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(201, 185, 154, 0.2);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 1.1rem;
+}
+
+/* Mermaid Container Adjustments */
+.mermaid-container {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid #c9b99a;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1.8rem;
+  text-align: center;
+}
+
+/* Bottom Navigation Bar */
+#masterclass-area .navbar.bottom-nav {
+  background: #e8e0d0;
+  border-top: 2px solid #c9b99a;
+  padding: 0.8rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#module-counter-display {
+  font-family: 'Caveat', cursive;
+  font-size: 1.2rem;
+  color: #6b5e50;
+}
+
+/* Paywall Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f0f0f0;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
 }
-
-#app {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  height: 80vh; /* Limit height */
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
-
-h1 {
+.modal-content.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 3rem;
+  border-radius: 20px;
   text-align: center;
-  color: #333;
-  margin-top: 0;
+  color: var(--color-white);
+  max-width: 500px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transform: translateY(0);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-
-#chat-container {
-  flex-grow: 1; /* Takes available space */
-  border: 1px solid #ccc;
+.modal-overlay.hidden .modal-content {
+  transform: translateY(30px);
+}
+.modal-content h2 {
+  font-family: var(--font-mono);
+  font-size: 2rem;
   margin-bottom: 1rem;
-  padding: 1rem;
-  overflow-y: auto; /* Enable scrolling */
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  color: #d8b4fe;
 }
-
-.message {
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  max-width: 80%;
-  word-wrap: break-word;
+.modal-content p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
 }
-
-.user-message {
-  background-color: #dcf8c6;
-  align-self: flex-end;
-}
-
-.bot-message {
-  background-color: #eee;
-  align-self: flex-start;
-}
-
-#input-area {
-  display: flex;
-  gap: 0.5rem;
-}
-
-#user-input {
-  flex-grow: 1;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-#send-button {
-  padding: 0.75rem 1.5rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-#send-button:hover {
-  background-color: #0056b3;
-}
-
-#send-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-/* Utility class to hide elements */
-.hidden {
-    display: none;
-}
-
-#setup-area label {
-  display: block;
-  margin-bottom: 0.25rem;
-  font-weight: bold;
-}
-
-#setup-area input {
-  width: calc(100% - 1.5rem); /* Adjust for padding */
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-#setup-area button {
-  padding: 0.75rem 1.5rem;
-  background-color: #28a745; /* Green */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  display: block; /* Make button take full width available */
+.modal-btn {
   width: 100%;
-  box-sizing: border-box; /* Include padding in width */
-}
-
-#setup-area button:hover {
-  background-color: #218838;
-}
-
-#chat-area h2, 
-#masterclass-area h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 1rem;
-    flex-shrink: 0; /* Prevent heading from shrinking */
-}
-
-#masterclass-area {
-    /* Make this a flex container to manage children's height */
-    display: flex; 
-    flex-direction: column;
-    flex-grow: 1; /* Allow it to take space within #app */
-    /* Prevent this area itself from overflowing #app */
-    overflow: hidden; 
-}
-
-#module-container {
-  flex-grow: 1; 
-  border: 1px solid #ccc;
-  margin-bottom: 1rem;
-  padding: 1.5rem;
-  overflow-y: auto; 
-  position: relative; 
-  min-height: 0; 
-}
-
-.module-page {
-  width: 100%;
-  box-sizing: border-box;
-  /* Pages are hidden by default, shown by JS */
-}
-
-.module-content h3 { /* Style for module titles */
-    margin-top: 0;
-    color: #0056b3;
-}
-
-.module-content h4 { /* Style for subheadings like Conceptual Cornerstone */
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
-    color: #333;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.25em;
-}
-
-.module-content {
-    /* Add word wrapping for long text */
-    overflow-wrap: break-word;
-    word-wrap: break-word; /* Legacy fallback */
-    /* Ensure content doesn't push container width unnecessarily */
-    max-width: 100%; 
-}
-
-.module-content p, 
-.module-content ul, 
-.module-content ol {
-    margin-bottom: 1em;
-    line-height: 1.6;
-    /* Ensure paragraphs also wrap correctly */
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-}
-
-.module-content ul, 
-.module-content ol {
-    padding-left: 20px;
-}
-
-.module-content code {
-  background-color: #f0f0f0;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-family: monospace;
-}
-
-.module-content pre {
-  background-color: #f0f0f0;
-  padding: 1em;
-  border-radius: 4px;
-  /* Add horizontal scroll for wide code blocks */
-  overflow-x: auto; 
-  /* Prevent long lines from breaking words in code */
-  white-space: pre; 
-  word-wrap: normal; /* Override general word-wrap for pre */
-}
-
-.module-content pre code {
-    padding: 0;
-    background-color: transparent;
-}
-
-.inquiry-area {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px dashed #ccc;
-}
-
-.inquiry-area h4 {
-    margin-top: 0;
-}
-
-.inquiry-area textarea {
-    width: calc(100% - 1.6rem); /* Account for padding */
-    min-height: 80px;
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    display: block; /* Ensure it takes full width */
-    box-sizing: border-box;
-}
-
-.inquiry-area button {
-    padding: 0.75rem 1.5rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.inquiry-area button:hover {
-    background-color: #0056b3;
-}
-
-.inquiry-area button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-
-#navigation-area {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    flex-shrink: 0; /* Prevent nav from shrinking */
-}
-
-#navigation-area button {
-    padding: 0.5rem 1rem;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#navigation-area button:hover {
-    background-color: #5a6268;
-}
-
-#navigation-area button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-#module-counter-display {
-    font-weight: bold;
-    color: #555;
-}
-
-/* Remove old chat styles that conflict */
-#chat-container .message { display: none; } /* Hide old message divs if any */
-
-/* Styles for Ease It Button and Explanation */
-.module-actions {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee; /* Lighter separator */
-}
-
-.ease-it-button {
-    padding: 0.5rem 1rem;
-    background-color: #ffc107; /* Warning/Yellow */
-    color: #333;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s;
-}
-
-.ease-it-button:hover {
-    background-color: #e0a800;
-}
-
-.ease-it-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.simplified-explanation {
-    margin-top: 1rem; 
-    padding: 1rem; 
-    background-color: #eef; 
-    border: 1px dashed #cce; /* Dashed border */
-    border-radius: 5px;
-    font-size: 0.95em;
-    line-height: 1.5;
-}
-
-.simplified-explanation b {
-    color: #0056b3;
-}
-
-/* Styles for Mermaid Conversion */
-.mermaid-container {
-    margin-top: 1.5rem; /* Add some space above */
-    margin-bottom: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-}
-
-.mermaid-container h4 {
-    margin-top: 0; /* Reset margin if needed */
-    margin-bottom: 0.5rem;
-}
-
-.mermaid-code-block pre {
-    background-color: #2d2d2d; /* Darker background for code */
-    color: #f0f0f0;
-    padding: 1em;
-    border-radius: 4px;
-    overflow-x: auto; 
-    white-space: pre; /* Keep whitespace */
-    word-wrap: normal;
-}
-
-.mermaid-code-block code {
-    background-color: transparent; /* Code inside pre shouldn't have extra bg */
-    padding: 0;
-}
-
-.render-mermaid-button {
-    display: block; /* Make button appear on its own line */
-    margin-top: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.5rem 1rem;
-    background-color: #17a2b8; /* Info/Cyan color */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s;
-}
-
-.render-mermaid-button:hover {
-    background-color: #138496;
-}
-
-.mermaid-diagram-output {
-    /* Style for the area where the diagram appears */
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fff;
-    text-align: center; /* Center the diagram */
-}
-
-.mermaid-diagram-output svg {
-    max-width: 100%; /* Ensure SVG scales down */
-    height: auto; /* Maintain aspect ratio */
-}
-
-/* Hide code/button when diagram shown (using JS class) */
-.mermaid--rendered .mermaid-code-block,
-.mermaid--rendered .render-mermaid-button {
-    display: none;
-}
-
-.mermaid--rendered .mermaid-diagram-output {
-    display: block !important; /* Ensure it shows */
+  margin-top: 1rem;
 }

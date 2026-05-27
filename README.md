@@ -1,92 +1,66 @@
-# ARCHON-7: Ultimate Learning Synthesizer
+# ARCHON-7: Adaptive Masterclass Generator
 
-ARCHON-7 is an advanced AI-powered learning platform that creates personalized, adaptive learning experiences. It combines the pedagogical expertise of leading educational institutions with cutting-edge AI technology to deliver a unique learning journey.
+ARCHON-7 is an advanced, AI-driven educational platform that generates personalized, interactive masterclasses. It dynamically adjusts to the user's learning level and domains, delivering a highly aesthetic, distraction-free "notebook" learning environment.
 
-## 🌟 Features
+## 🚀 Features
 
-- **Adaptive Learning Modules**: 100 carefully crafted modules that adapt to your learning pace
-- **Interactive Diagrams**: Visual learning through Mermaid diagrams
-- **Simplified Explanations**: "Ease It" feature for simplified concepts
-- **Progress Tracking**: Visual progress navigation through the learning journey
-- **Interactive Elements**: Actionable inquiries and challenges
-- **Real-time AI Interaction**: Powered by Google's Gemini AI
+- **Dynamic Curriculum Generation**: Uses Anthropic's Claude to generate a structured progression from foundational theory to hands-on mastery.
+- **Notebook Aesthetic**: A beautiful, distraction-free handwritten notebook UI using standard Markdown rendering.
+- **Visual Synthesis**: Automatically generates and renders dynamic Mermaid flowcharts and system diagrams to break down complex topics.
+- **Adaptive Interrogation**: Injects interactive quizzes into the curriculum and adjusts the complexity of future modules based on user performance.
+- **Capstone Project**: Every masterclass culminates in a practical, hands-on architectural project.
+- **Authentication & Persistence**: Secure user login via Supabase Auth, with robust `localStorage` state persistence.
+- **Rate Limiting**: Integrated Upstash Redis to ensure users are limited to free trials/generations (1 per IP), with a paywall modal.
 
-## 🚀 Getting Started
+## 🛠 Tech Stack
 
-### Prerequisites
+- **Frontend**: HTML, CSS, TypeScript, Vite, Motion (Animations)
+- **Backend / AI**: Node.js, Express, Anthropic API (Claude)
+- **Database & Auth**: Supabase Auth, Upstash Redis
+- **Markdown & Diagramming**: Marked, Mermaid.js
+- **Deployment**: Vercel (Serverless Functions)
 
-- Node.js (v14 or higher)
-- npm or yarn
-- A Google Gemini API key
+## 💻 Local Development
 
-### Installation
+1. **Clone & Install**
+   ```bash
+   git clone <your-repo-url>
+   cd ARCHON_7
+   npm install
+   ```
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/ARCHON-7.git
-cd ARCHON-7
-```
+2. **Environment Variables**
+   Create a `.env` file in the root directory with the following keys:
+   ```env
+   # Frontend (Supabase Auth)
+   VITE_SUPABASE_URL=https://<your-project>.supabase.co
+   VITE_SUPABASE_ANON_KEY=your_anon_key
 
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
+   # Backend (AI & Redis)
+   ANTHROPIC_API_KEY=your_anthropic_api_key
+   UPSTASH_REDIS_REST_URL=https://<your-redis>.upstash.io
+   UPSTASH_REDIS_REST_TOKEN=your_redis_token
+   PORT=3456
+   ```
 
-3. Create a `.env` file in the root directory and add your Gemini API key:
-```
-VITE_GEMINI_API_KEY=your_api_key_here
-```
+3. **Run the Application**
+   For local development, the backend runs as a standard Node/Express server, while Vite proxies frontend API requests to it.
+   
+   *Start the Backend API:*
+   ```bash
+   node api/index.js
+   ```
+   *Start the Frontend:*
+   ```bash
+   npm run dev
+   ```
 
-4. Start the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
+## 🌐 Vercel Deployment
 
-## 🎯 Usage
+ARCHON-7 is configured natively for Vercel.
 
-1. Enter your desired domain (e.g., "Quantum Computing", "Behavioral Economics")
-2. Specify your subject within that domain
-3. Begin your learning journey through the 100 adaptive modules
-4. Use the "Convert to Diagram" button to visualize concepts
-5. Click "Ease It" for simplified explanations when needed
-
-## 🛠️ Technology Stack
-
-- **Frontend**: TypeScript, Vite
-- **AI Integration**: Google Gemini AI
-- **Styling**: CSS
-- **Diagrams**: Mermaid.js
-
-## 📚 Module Structure
-
-Each module includes:
-- Module Title & Objective
-- Conceptual Cornerstone
-- Illuminating Examples
-- Actionable Inquiry
-- Conceptual Linkages
-- LENS Shift (Perspective)
-- Visual Synthesis (Diagram)
-- Progress Navigator
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Google Gemini AI for powering the learning experience
-- Mermaid.js for diagram visualization
-- The educational community for inspiration and guidance
-
-## 📧 Contact
-
-For questions or support, please open an issue in the GitHub repository. 
+1. Push your code to GitHub.
+2. Go to your [Vercel Dashboard](https://vercel.com/) and click **Add New > Project**.
+3. Import your GitHub repository.
+4. **Important**: Under **Environment Variables**, paste ALL the keys from your `.env` file (both `VITE_` and backend keys).
+5. Click **Deploy**. Vercel will automatically host the Vite frontend and build the `api/index.js` as a Serverless Function!
