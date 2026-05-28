@@ -44,6 +44,7 @@ let userLevel: string | null = null;
 let maxModules = 8;
 let modules: { raw: string, html: string }[] = [];
 let currentModuleIndex = -1;
+let currentHistoryId: string | null = null;
 let isWaitingForAI = false;
 let isLoggedIn = false;
 
@@ -109,35 +110,86 @@ try {
         });
 
         function saveState() {
+            if (!currentHistoryId) {
+                currentHistoryId = Date.now().toString();
+            }
             const state = {
+                id: currentHistoryId,
                 userDomain, userSubject, userLevel, maxModules,
-                modules, currentModuleIndex, chatHistory
+                modules, currentModuleIndex, chatHistory,
+                lastAccessed: new Date().toISOString()
             };
-            localStorage.setItem('archon_state', JSON.stringify(state));
+            
+            let history: any[] = [];
+            const historyStr = localStorage.getItem('archon_history');
+            if (historyStr) {
+                history = JSON.parse(historyStr);
+            } else {
+                const oldState = localStorage.getItem('archon_state');
+                if (oldState) {
+                    try {
+                        const parsed = JSON.parse(oldState);
+                        parsed.id = Date.now().toString();
+                        parsed.lastAccessed = new Date().toISOString();
+                        history.push(parsed);
+                        localStorage.removeItem('archon_state');
+                    } catch(e) {}
+                }
+            }
+            
+            const existingIndex = history.findIndex((item: any) => item.id === currentHistoryId);
+            if (existingIndex >= 0) {
+                history[existingIndex] = state;
+            } else {
+                history.push(state);
+            }
+            
+            localStorage.setItem('archon_history', JSON.stringify(history));
         }
 
-        function loadState() {
-            const stored = localStorage.getItem('archon_state');
-            if (stored) {
-                try {
-                    const state = JSON.parse(stored);
-                    userDomain = state.userDomain;
-                    userSubject = state.userSubject;
-                    userLevel = state.userLevel;
-                    maxModules = state.maxModules;
-                    modules = state.modules || [];
-                    currentModuleIndex = state.currentModuleIndex;
-                    chatHistory = state.chatHistory || [];
+        function loadState(idToLoad?: string) {
+            let history: any[] = [];
+            const historyStr = localStorage.getItem('archon_history');
+            if (historyStr) {
+                history = JSON.parse(historyStr);
+            } else {
+                const oldState = localStorage.getItem('archon_state');
+                if (oldState) {
+                    try {
+                        const parsed = JSON.parse(oldState);
+                        parsed.id = Date.now().toString();
+                        parsed.lastAccessed = new Date().toISOString();
+                        history.push(parsed);
+                        localStorage.removeItem('archon_state');
+                        localStorage.setItem('archon_history', JSON.stringify(history));
+                    } catch(e) {}
+                }
+            }
+            
+            if (history.length === 0) return false;
+            
+            history.sort((a: any, b: any) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime());
+            
+            const state = idToLoad ? history.find((h: any) => h.id === idToLoad) : history[0];
+            
+            if (state) {
+                currentHistoryId = state.id;
+                userDomain = state.userDomain;
+                userSubject = state.userSubject;
+                userLevel = state.userLevel;
+                maxModules = state.maxModules;
+                modules = state.modules || [];
+                currentModuleIndex = state.currentModuleIndex;
+                chatHistory = state.chatHistory || [];
 
-                    if (modules.length > 0) {
-                        slidesContainer.classList.add('hidden');
-                        masterclassArea.classList.remove('hidden');
-                        masterclassHeading.textContent = `${userSubject} in ${userDomain} (${userLevel})`;
-                        displayModule(currentModuleIndex >= 0 ? currentModuleIndex : 0);
-                        return true;
-                    }
-                } catch (e) {
-                    console.error("Failed to load state", e);
+                if (modules.length > 0) {
+                    slidesContainer.classList.add('hidden');
+                    masterclassArea.classList.remove('hidden');
+                    masterclassHeading.textContent = `${userSubject} in ${userDomain} (${userLevel})`;
+                    displayModule(currentModuleIndex >= 0 ? currentModuleIndex : 0);
+                    state.lastAccessed = new Date().toISOString();
+                    localStorage.setItem('archon_history', JSON.stringify(history));
+                    return true;
                 }
             }
             return false;
@@ -164,6 +216,10 @@ try {
                 userSubject = subject;
                 userLevel = level;
                 maxModules = level === 'Low' ? 8 : (level === 'Intermediate' ? 16 : 24);
+                currentHistoryId = Date.now().toString();
+                modules = [];
+                chatHistory = [];
+                currentModuleIndex = -1;
 
                 // Check if user is logged in via Supabase
                 if (!isLoggedIn) {
@@ -343,21 +399,9 @@ try {
         });
 
         goBackButton.addEventListener('click', () => {
-            if (confirm("Are you sure you want to go back? This will clear your current masterclass progress.")) {
-                localStorage.removeItem('archon_state');
-                userDomain = null;
-                userSubject = null;
-                userLevel = null;
-                modules = [];
-                chatHistory = [];
-                currentModuleIndex = -1;
-                
-                masterclassArea.classList.add('hidden');
-                slidesContainer.classList.remove('hidden');
-                
-                // Scroll to setup section
-                document.getElementById('setup')?.scrollIntoView({ behavior: 'smooth' });
-            }
+            masterclassArea.classList.add('hidden');
+            slidesContainer.classList.remove('hidden');
+            document.getElementById('setup')?.scrollIntoView({ behavior: 'smooth' });
         });
 
         function parseAndStructureModule(rawText: string): string {
@@ -412,6 +456,62 @@ try {
             }
         }
 
+
+        // --- Library Logic ---
+        const libraryModal = document.getElementById('library-modal')!;
+        const openLibraryBtn = document.getElementById('open-library-btn')!;
+        const closeLibraryBtn = document.getElementById('close-library-btn')!;
+        const libraryList = document.getElementById('library-list')!;
+
+        function renderLibrary() {
+            libraryList.innerHTML = '';
+            const historyStr = localStorage.getItem('archon_history');
+            if (!historyStr) {
+                libraryList.innerHTML = '<p style="opacity: 0.5;">No masterclasses generated yet.</p>';
+                return;
+            }
+            const history = JSON.parse(historyStr);
+            if (history.length === 0) {
+                libraryList.innerHTML = '<p style="opacity: 0.5;">No masterclasses generated yet.</p>';
+                return;
+            }
+            
+            history.sort((a: any, b: any) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime());
+            
+            history.forEach((item: any) => {
+                const div = document.createElement('div');
+                div.className = 'library-item';
+                div.innerHTML = `
+                    <div>
+                        <h3>${item.userSubject}</h3>
+                        <p>${item.userDomain} &bull; ${item.userLevel}</p>
+                    </div>
+                    <div class="library-item-meta">
+                        ${item.modules?.length || 0}/${item.maxModules} Modules
+                    </div>
+                `;
+                div.addEventListener('click', () => {
+                    libraryModal.classList.add('hidden');
+                    loadState(item.id);
+                });
+                libraryList.appendChild(div);
+            });
+        }
+
+        if (openLibraryBtn) {
+            openLibraryBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                renderLibrary();
+                libraryModal.classList.remove('hidden');
+            });
+        }
+
+        if (closeLibraryBtn) {
+            closeLibraryBtn.addEventListener('click', () => {
+                libraryModal.classList.add('hidden');
+            });
+        }
+
         // --- Paywall Close Button ---
         const closePaywallBtn = document.getElementById('close-paywall-btn');
         if (closePaywallBtn) {
@@ -421,7 +521,7 @@ try {
         }
 
         // --- Razorpay Checkout Integration ---
-        declare const Razorpay: any;
+        const getRazorpay = () => (window as any).Razorpay;
         const RAZORPAY_KEY_ID = (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || '';
 
         const pricingBuyBtns = document.querySelectorAll('.pricing-buy-btn') as NodeListOf<HTMLButtonElement>;
@@ -467,7 +567,12 @@ try {
                 };
 
                 try {
-                    const rzp = new Razorpay(options);
+                    const RazorpayClass = getRazorpay();
+                    if (!RazorpayClass) {
+                        alert("Payment gateway is still loading, please wait a moment.");
+                        return;
+                    }
+                    const rzp = new RazorpayClass(options);
                     rzp.on('payment.failed', function(response: any) {
                         alert('Payment failed: ' + response.error.description);
                     });

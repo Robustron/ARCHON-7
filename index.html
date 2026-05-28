@@ -67,6 +67,7 @@
         <a href="#hero">Mission</a>
         <a href="#problem">Problem</a>
         <a href="#setup">Platform</a>
+        <a href="#" id="open-library-btn" style="color: #d8b4fe; font-weight: 600;">My Library</a>
       </div>
     </nav>
 
@@ -166,7 +167,7 @@
     <div id="masterclass-area" class="hidden">
         <div class="navbar light-nav" style="display: flex; justify-content: space-between; align-items: center;">
            <h2 id="masterclass-heading">Masterclass</h2>
-           <button id="go-back-btn" class="btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Go Back</button>
+           <button id="go-back-btn" class="btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Home / New</button>
         </div>
         <div id="module-container" class="textbook-theme">
           <!-- Modules load here -->
@@ -176,6 +177,18 @@
           <span id="module-counter-display"></span>
           <button id="next-module-button" class="btn-solid hidden">Next Page</button>
         </div>
+    </div>
+
+    <!-- Library Modal -->
+    <div id="library-modal" class="modal-overlay hidden">
+      <div class="modal-content glass-card" style="max-width: 600px; width: 90vw;">
+        <button id="close-library-btn" class="pricing-close-btn">&times;</button>
+        <h2>My Library</h2>
+        <p>Access your previously generated Masterclasses.</p>
+        <div id="library-list" class="library-list-container">
+          <!-- History items will be injected here by JS -->
+        </div>
+      </div>
     </div>
 
     <!-- Upgrade to Pro Pricing Modal -->
